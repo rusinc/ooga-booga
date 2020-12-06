@@ -32,6 +32,7 @@ namespace TetrisClient
 		public static readonly Command ROTATE_CLOCKWISE_180 = new Command("ACT(2)");
 		public static readonly Command ROTATE_CLOCKWISE_270 = new Command("ACT(3)");
 		public static readonly Command SUICIDE = new Command("ACT(0,0)");
+		public static readonly Command THINKING = new Command("");
 
 		private readonly List<string> _commandChain = new List<string>();
 

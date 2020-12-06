@@ -27,10 +27,11 @@ using Newtonsoft.Json;
 
 namespace TetrisClient
 {
-	public class Board
+	public class Board 
 	{
 		private JsonBoard RawBoard;
 		private LengthToXY LengthXY;
+		private string boardString;
 
 		/// <summary>
 		/// Размер игровой доски (размер доски Size x Size клеток)
@@ -42,6 +43,7 @@ namespace TetrisClient
 			RawBoard = JsonConvert.DeserializeObject<JsonBoard>(boardString.Replace("\n", ""));
 			Size = (int)Math.Sqrt(RawBoard.Layers[0].Length);
 			LengthXY = new LengthToXY(Size);
+			this.boardString = boardString;
 		}
 
 		/// <summary>
@@ -210,6 +212,29 @@ namespace TetrisClient
 			return count;
 		}
 
+
+		public int CountNearNotAir(int x, int y)
+		{
+			int count = 0;
+			for (int i = x - 1; i < x + 2; i++)
+			{
+				for (int j = y - 1; j < y + 2; j++)
+				{
+					if (i == x && j == y)
+						continue;
+					if (GetAt(i, j)!=Element.NONE)
+						count++;
+				}
+			}
+			return count;
+		}
+
+		public int CountNearNotAir(Point pt)
+		{
+			return CountNearNotAir(pt.X, pt.Y);
+		}
+
+
 		/// <summary>
 		/// Подсчитать количество соседних клеток, являющихся заданным элементом.
 		/// </summary>
@@ -230,7 +255,32 @@ namespace TetrisClient
 		{
 			return (Element)ch;
 		}
+		//[за пpеделами,в пpеделах]
+		public List<List<Point>> GetNearNotAir(int x, int y)
+		{
+			List<List<Point>> elements = new List<List<Point>>();
+			elements.Add(new List<Point>()); 
+			elements.Add(new List<Point>());
+			for (int i = x - 1; i < x + 2; i++)
+			{
+				for (int j = y - 1; j < y + 2; j++)
+				{
+					if (i == x && j == y)
+						continue;
+					if(IsOutOfField(i, j))
+						elements[0].Add(new Point(i, j));
+					else if(GetAt(i, j) != Element.NONE)
+						elements[1].Add(new Point(i, j));
+				}
+			}
 
+			return elements;
+		}
+		//[за пpеделами,в пpеделах]
+		public List<List<Point>> GetNearNotAir(Point point)
+		{
+			return GetNearNotAir(point.X, point.Y);
+		}
 
 		/// <summary>
 		/// Получить все элементы на соседних клетках
@@ -373,6 +423,39 @@ namespace TetrisClient
 				.ToList();
 		}
 
+		//Посмотрим, ломается-ли строка
+		public bool isLineBreaking(int y)
+        {
+			bool breaking = true;
+			for(int x = 0; x< Size; x++)
+            {
+				if (GetAt(x, InversionY(y)) == Element.NONE)
+                {
+					breaking = false;
+					break;
+                }
+            }
+			return breaking;
+        }
+
+		//Обновляет себя со сломанной строкой
+		public bool breakLine(int line)
+        {
+			if (isLineBreaking(line))
+			{
+				for (int y = line - 1; y >= -1; y--)
+				{
+					for (int x = 0; x < Size; x++)
+					{
+						Point point = new Point(x, y);
+						Set(x, y + 1, Convert.ToChar(GetAt(point)));
+					}
+				}
+				return true;
+			}
+			return false;
+		}
+
 
 		#region Экспериментальные методы. Использовать осторожно!
 
@@ -427,5 +510,10 @@ namespace TetrisClient
 
 			return sb.ToString();
 		}
-	}
+
+        public Board Clone()
+        {
+			return new Board(boardString);
+        }
+    }
 }

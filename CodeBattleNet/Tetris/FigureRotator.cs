@@ -20,6 +20,7 @@
  * #L%
  */
 using System;
+using System.Collections.Generic;
 
 namespace TetrisClient
 {
@@ -33,6 +34,7 @@ namespace TetrisClient
 			(point, delta) => point.ShiftLeft(delta),
 		};
 
+		//ВЫ мне не нpавитесь :/
 		public static Point[] PredictCurrentFigurePoints(Rotation rotation, Point anchor, Element figureType)
 		{
 			var shiftTopAfterRotation = GetShiftAfterRotation(Direction.Up, rotation);
@@ -50,7 +52,7 @@ namespace TetrisClient
 						anchor.Shift(shiftBottomAfterRotation, 1),
 						anchor.Shift(shiftBottomAfterRotation, 2),
 					};
-				case Element.CYAN:
+				case Element.ORANGE:
 					return new[]
 					{
 						anchor.Shift(shiftTopAfterRotation, 1),
@@ -59,7 +61,7 @@ namespace TetrisClient
 						anchor.Shift(shiftBottomAfterRotation, 1)
 							  .Shift(shiftLeftAfterRotation, 1),
 					};
-				case Element.ORANGE:
+				case Element.CYAN:
 					return new[]
 					{
 						anchor.Shift(shiftTopAfterRotation, 1),
@@ -77,7 +79,7 @@ namespace TetrisClient
 						anchor.Shift(shiftBottomAfterRotation, 1)
 							  .Shift(shiftRightAfterRotation, 1),
 					};
-				case Element.GREEN:
+				case Element.RED:
 					return new[]
 					{
 						anchor.Shift(shiftLeftAfterRotation, 1),
@@ -94,7 +96,7 @@ namespace TetrisClient
 						anchor.Shift(shiftRightAfterRotation, 1),
 						anchor.Shift(shiftTopAfterRotation, 1),
 					};
-				case Element.RED:
+				case Element.GREEN:
 					return new[]
 					{
 						anchor.Shift(shiftTopAfterRotation, 1)

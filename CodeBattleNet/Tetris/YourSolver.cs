@@ -20,6 +20,11 @@
  * #L%
  */
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using TetrisClient.CustomLogic;
+
 namespace TetrisClient
 {
 	/// <summary>
@@ -27,9 +32,14 @@ namespace TetrisClient
 	/// </summary>
 	internal class YourSolver : AbstractSolver
 	{
+		private Oracul oracul;
+
 		public YourSolver(string server)
 			: base(server)
 		{
+
+			oracul = new Oracul();
+
 		}
 
 		/// <summary>
@@ -38,13 +48,16 @@ namespace TetrisClient
 		protected internal override Command Get(Board board)
 		{
 			// Код писать сюда!
-			return Command.DOWN;
+			//return Command.ROTATE_CLOCKWISE_90;
+			oracul.updateInfo(board);
 
-			// Команды можно комбинировать
-			/*
-			return Command.DOWN
-				.Then(Command.SUICIDE);
-			*/
+			Task<Command> task = oracul.getTheBestCommand();
+			
+			task.Wait();
+
+			return task.Result;
 		}
+
+		
 	}
 }

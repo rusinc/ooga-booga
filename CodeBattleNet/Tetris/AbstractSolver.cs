@@ -23,6 +23,7 @@ using System;
 using System.Web;
 using System.Linq;
 using System.Text;
+using Mono.Web;
 
 namespace TetrisClient
 {
@@ -50,7 +51,7 @@ namespace TetrisClient
 		public void Play()
 		{
 			string url = GetWebSocketUrl(this.ServerUrl);
-
+			
 			using (var socket = new WebSocket(new Uri(url)))
 			{
 				socket.Connect();
@@ -72,7 +73,7 @@ namespace TetrisClient
 						//Вывод текущего состояния игровой доски в консоль
 						Console.Clear();
 						Console.SetCursorPosition(0, 0);
-						Console.WriteLine(board.ToString());
+						//Console.WriteLine(board.ToString());
 
 						var action = Get(board);
 
@@ -83,6 +84,9 @@ namespace TetrisClient
 					}
 				}
 			}
+
+			Console.ReadKey();
+			
 		}
 
 		public static string GetWebSocketUrl(string serverUrl)
