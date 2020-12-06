@@ -447,8 +447,15 @@ namespace TetrisClient
 				{
 					for (int x = 0; x < Size; x++)
 					{
-						Point point = new Point(x, y);
-						Set(x, y + 1, Convert.ToChar(GetAt(point)));
+                        if (y == -1)
+                        {
+							Set(x, y + 1, Convert.ToChar(Element.NONE));
+						}
+                        else
+                        {
+							Set(x, y + 1, Convert.ToChar(GetAt(x,y)));
+                        }
+						//Point point = new Point(x, y);
 					}
 				}
 				return true;

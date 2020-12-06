@@ -15,8 +15,13 @@ namespace TetrisClient.CustomLogic
 
         private List<PossiblePosition> positions = new List<PossiblePosition>();
 
+        public PossiblePosition ChildOf { get; set; }
+
         public delegate void PredicionReady(Command command);
         public event PredicionReady OnPredictionReady;
+
+        public delegate void NextPredictionReady(List<PossiblePosition> positions);
+        public event NextPredictionReady OnNextPredictionReady;
 
         public Prediction(Board board,Element element,List<Element> knowNext)
         {
@@ -63,7 +68,7 @@ namespace TetrisClient.CustomLogic
             
             notifyGotReults();
 
-            doNextPredictions();
+            //doNextPredictions();
         }
 
         private void clearFallingElements()
@@ -174,7 +179,7 @@ namespace TetrisClient.CustomLogic
         private void calculatePaths()
         {
             straightDropCheck();
-            easySlideCheck();
+            //easySlideCheck();
             //TODO повороты на месте и скольжение
             //Может это проще, чем кажется?
 
@@ -459,18 +464,25 @@ namespace TetrisClient.CustomLogic
                     {
                         if (u.NextBoard.isLineBreaking(q.Y))
                         {
-                            int emptyPoints = 0;
-                            if (q.Y - 1 >= 0)
+                            /*int emptyPoints = 0;
+                            if (q.Y + 1 >= 0)
                             {
                                 for(int x = 0;x< board.Size; x++)
                                 {
-                                    if (u.NextBoard.GetAt(x, board.InversionY(q.Y - 1)) == Element.NONE)
-                                        emptyPoints++;
+                                    try
+                                    {
+                                        if (u.NextBoard.GetAt(x, board.InversionY(q.Y + 1)) == Element.NONE)
+                                            emptyPoints++;
+                                    }catch(Exception e)
+                                    {
+                                        //AAAAAAAAAAAAAAAAAAAAAAAAAAA
+                                    }       
                                 }
-                            }
+                            }*/
                             if (u.NextBoard.breakLine(q.Y))
                             {
-                                brokenLines.Add(q.Y,emptyPoints);
+                                brokenLines.Add(q.Y,0);
+                                //brokenLines.Add(q.Y, emptyPoints);
                             }
                         }
                         
@@ -493,14 +505,14 @@ namespace TetrisClient.CustomLogic
 
                 if (brokenLines.Count > 1 && brokenLines.Count < 4)
                 {
-                    if(u.Points.Count == 0 && u.Anchor.Y <= 15)
+                    if(u.Points.Count == 0 && u.Anchor.Y <= 7)
                     {
                         //Одну линию мало смысла уничтожать
                         u.LineBreakScore =  (brokenLines.Count -1) * PossiblePosition.LINE_BREAK_SCORE;
                     }else if(u.Anchor.Y <= 7)
                     {
                         //Ценим расчищаемые наверху завалы
-                        u.LineBreakScore = brokenLines.Count * (brokenLines.Values.Sum() + 1) * (-u.Anchor.Y) * (PossiblePosition.LINE_BREAK_SCORE / 30);
+                        u.LineBreakScore = brokenLines.Count * (brokenLines.Values.Sum() + 1) * (u.Anchor.Y) * (PossiblePosition.LINE_BREAK_SCORE / 30);
                     }
 
                 }
@@ -520,11 +532,28 @@ namespace TetrisClient.CustomLogic
         private void notifyGotReults()
         {
             OnPredictionReady?.Invoke(theBestPath);
+            OnNextPredictionReady?.Invoke(positions);
         }
 
         private void doNextPredictions()
         {
-            //notнig нere
+
+            positions.ForEach(u => {
+                List<Element> nextReduced = new List<Element>();
+                nextReduced.AddRange(knowNext.GetRange(1, knowNext.Count - 1));
+                Element next = knowNext.FirstOrDefault();
+                Prediction nextPrediction = new Prediction(u.NextBoard, next, nextReduced);
+                nextPrediction.OnNextPredictionReady += OnPetReady;
+                nextPrediction.ChildOf = u;
+                nextPrediction.start();
+            });
+        }
+
+
+        public void OnPetReady(List<PossiblePosition> positions)
+        {
+            Dictionary<PossiblePosition, List<PossiblePosition>> nextSteps = new Dictionary<PossiblePosition, List<PossiblePosition>>();
+
         }
 
     }
